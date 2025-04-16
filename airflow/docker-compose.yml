@@ -1,0 +1,74 @@
+version: '3.8'
+
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.8.1
+  environment: &airflow-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
+    AIRFLOW__WEBSERVER__SECRET_KEY: 'a_random_secret_key'
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ../scripts:/opt/airflow/scripts
+  depends_on:
+    - postgres
+    - redis
+
+services:
+  postgres:
+    image: postgres:15
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+  streamlit:
+    build:
+      context: ..
+    ports:
+      - "8502:8501"
+    volumes:
+      - ../app:/app
+    command: streamlit run app/app.py --server.port=8501 --server.address=0.0.0.0
+    depends_on:
+      - postgres
+  redis:
+    image: redis:latest
+
+  airflow-webserver:
+    <<: *airflow-common
+    ports:
+      - "8081:8080"
+    command: webserver
+    restart: always
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    restart: always
+
+  airflow-init:
+    <<: *airflow-common
+    command: >
+      bash -c "
+        airflow db migrate &&
+        airflow users create \
+          --username admin \
+          --password admin \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email aidookingsleymensah@gmail.com
+      "
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  postgres_db:
