@@ -1,0 +1,26 @@
+# Ignore log files
+logs/
+
+# Python environments
+venv/
+sptfy-env/
+
+# VSCode and IDE settings
+.vscode/
+
+# Output artifacts and database
+output/
+students.db
+
+# Environment files
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Docker
+.dockerignore
+
+# Any OS-specific files
+.DS_Store
