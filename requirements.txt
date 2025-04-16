@@ -1,0 +1,17 @@
+# Core packages
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+streamlit
+python-dotenv
+humanize
+# Cloud storage
+boto3
+azure-storage-blob
+sqlalchemy
+psycopg2-binary
+
+
+
