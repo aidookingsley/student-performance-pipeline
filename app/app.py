@@ -13,7 +13,8 @@ from sklearn.metrics import mean_squared_error
 from s3_utils import upload_file_to_s3
 from azure_sb import upload_file_to_azure
 import subprocess
-
+sys.path.append('scripts')
+import visualize
 # Streamlit config
 st.set_page_config(
     page_title="Student Performance Analysis",
